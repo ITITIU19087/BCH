@@ -4,14 +4,18 @@ import com.antnest.bch.dto.BlockDetailDto;
 import com.antnest.bch.dto.BlockNumberDto;
 import com.antnest.bch.dto.RawResponse;
 import com.antnest.bch.dto.RequestDto;
-import org.apache.kafka.common.protocol.types.Field;
+import com.antnest.bch.exeception.UndefinedBlockException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
+import java.util.List;
 
 
 @Service
+@Slf4j
 public class BlockService {
     @Autowired
     private RestTemplateService<BlockDetailDto> blockDetailService;
@@ -20,7 +24,7 @@ public class BlockService {
     private RestTemplateService<BlockNumberDto> blockNumberService;
 
 
-    public BlockDetailDto getBlockTransactions(String hashOrNumber) {
+    public BlockDetailDto getBlockTransactions(Long hashOrNumber) {
         RequestDto request = this.createRequest(hashOrNumber);
         RawResponse<BlockDetailDto> response = blockDetailService.callExchange(new ParameterizedTypeReference<>(){},request);
         return response.getResult();
@@ -31,9 +35,39 @@ public class BlockService {
         return response.getResult();
     }
 
-    private RequestDto createRequest(String hashOrNumber) {
+    private RequestDto createRequest(Long hashOrNumber) {
         return RequestDto.builder()
                 .hashOrNumber(hashOrNumber)
                 .build();
     }
+    public List<BlockDetailDto> getMultiBlockTransactions(Long fromBlock, Long toBlock){
+        List<BlockDetailDto> list = new LinkedList<>();
+        Long latestBlock = this.getLatestBlockHeight().getBlockNumber();
+        if (fromBlock > toBlock){
+            throw new UndefinedBlockException("Undefined Block");
+        }
+        else if(fromBlock > latestBlock && toBlock > latestBlock){
+            log.info("Latest Block transactions: " + latestBlock);
+            RequestDto request = this.createRequest(latestBlock);
+            RawResponse<BlockDetailDto> response = blockDetailService.callExchange(new ParameterizedTypeReference<>(){},request);
+            list.add(response.getResult());
+        }
+        else if(toBlock > latestBlock){
+            log.info("From block " + fromBlock + " to latest block " + latestBlock);
+            for (Long i = fromBlock; i <= latestBlock; i++) {
+                RequestDto request = this.createRequest(i);
+                RawResponse<BlockDetailDto> response = blockDetailService.callExchange(new ParameterizedTypeReference<>(){},request);
+                list.add(response.getResult());
+            }
+        }
+        else{
+            for (Long i = fromBlock; i <= toBlock; i++) {
+                RequestDto request = this.createRequest(i);
+                RawResponse<BlockDetailDto> response = blockDetailService.callExchange(new ParameterizedTypeReference<>(){},request);
+                list.add(response.getResult());
+            }
+        }
+        return list;
+    }
+
 }

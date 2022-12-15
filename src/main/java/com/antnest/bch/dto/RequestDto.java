@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 @Builder
 public class RequestDto {
-    private String hashOrNumber;
+    private Long hashOrNumber;
 }

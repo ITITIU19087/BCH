@@ -11,19 +11,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 public class BlockController {
 
     @Autowired
     private BlockService blockService;
 
-    @PostMapping ("transactions")
-    public ResponseEntity<BlockDetailDto> getBlockTransactions(@RequestParam String hashOrNumber){
+    @PostMapping ("/transactions")
+    public ResponseEntity<BlockDetailDto> getBlockTransactions(@RequestParam Long hashOrNumber){
         return new ResponseEntity<>(blockService.getBlockTransactions(hashOrNumber),HttpStatus.OK);
     }
 
-    @GetMapping("latest")
+    @GetMapping("/latest")
     public ResponseEntity<BlockNumberDto> getLatestBlockHeight(){
         return new ResponseEntity<>(blockService.getLatestBlockHeight(),HttpStatus.OK);
+    }
+
+    @PostMapping("/transaction/list")
+    public List<BlockDetailDto> getMultiBlockTransactions(@RequestParam Long start,Long end){
+        return blockService.getMultiBlockTransactions(start, end);
     }
 }

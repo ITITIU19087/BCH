@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class BlockNumberDto {
-    private String blockNumber;
+    private Long blockNumber;
 }
