@@ -3,6 +3,7 @@ package com.antnest.bch.controller;
 import com.antnest.bch.dto.BlockDetailDto;
 import com.antnest.bch.dto.BlockNumberDto;
 import com.antnest.bch.service.BlockService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class BlockController {
     }
 
     @PostMapping("/transaction/list")
-    public List<BlockDetailDto> getMultiBlockTransactions(@RequestParam Long start,Long end){
+    public List<BlockDetailDto> getMultiBlockTransactions(@RequestParam Long start,Long end) throws JsonProcessingException {
         return blockService.getMultiBlockTransactions(start, end);
     }
 }

@@ -27,8 +27,7 @@ public class ScanningProcess {
     private LocalDateTime endAt;
 
     @Column(name = "chain")
-    @Enumerated(EnumType.STRING)
-    private Chain chain;
+    private String chain;
 
     @Column(name = "from_block")
     private Long fromBlock;
@@ -37,6 +36,5 @@ public class ScanningProcess {
     private Long toBlock;
 
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    private String status;
 }
