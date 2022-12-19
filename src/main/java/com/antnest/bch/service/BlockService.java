@@ -58,6 +58,7 @@ public class BlockService {
     }
     public List<BlockDetailDto> getMultiBlockTransactions(Long fromBlock, Long toBlock) throws JsonProcessingException {
         List<BlockDetailDto> list = new LinkedList<>();
+        if(!isScanningProcess()){
             Long latestBlock = this.getLatestBlockHeight().getBlockNumber();
             Long processInsertId = insertScanningProcess(fromBlock, toBlock);
             if (fromBlock > toBlock){
@@ -67,18 +68,17 @@ public class BlockService {
                 log.info("Latest Block transactions: " + latestBlock);
                 RequestDto request = this.createRequest(latestBlock);
                 RawResponse<BlockDetailDto> response = blockDetailService.callExchange(new ParameterizedTypeReference<>(){},request);
-                if(checkAddressValue(response.getResult())){
+                if(!checkAddressValue(response.getResult())){
                     list.add(response.getResult());
                     this.sendMessage(response.getResult());
                 }
-
             }
             else if(toBlock > latestBlock){
                 log.info("From block " + fromBlock + " to latest block " + latestBlock);
                 for (Long i = fromBlock; i <= latestBlock; i++) {
                     RequestDto request = this.createRequest(i);
                     RawResponse<BlockDetailDto> response = blockDetailService.callExchange(new ParameterizedTypeReference<>(){},request);
-                    if(checkAddressValue(response.getResult())) {
+                    if(!checkAddressValue(response.getResult())){
                         list.add(response.getResult());
                         this.sendMessage(response.getResult());
                     }
@@ -94,10 +94,10 @@ public class BlockService {
                     }
 
                 }
-
             }
+            updateProcessEvent(processInsertId);
+        }
         return list;
-
     }
 
     private long insertScanningProcess(Long fromBlock, Long toBlock) {
