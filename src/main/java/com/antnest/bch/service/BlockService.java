@@ -53,10 +53,10 @@ public class BlockService {
 
     private RequestDto createRequest(Long hashOrNumber) {
         return RequestDto.builder()
-                .hashOrNumber(hashOrNumber)
+                .hashOrNumber(String.valueOf(hashOrNumber))
                 .build();
     }
-    public List<BlockDetailDto> getMultiBlockTransactions(Long fromBlock, Long toBlock) throws JsonProcessingException {
+    public List<BlockDetailDto> getMultiBlockTransactions(Long fromBlock, Long toBlock){
         List<BlockDetailDto> list = new LinkedList<>();
         if(!isScanningProcess()){
             Long latestBlock = this.getLatestBlockHeight().getBlockNumber();
